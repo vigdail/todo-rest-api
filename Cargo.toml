@@ -1,0 +1,15 @@
+[package]
+authors = ["Vigdail <vigdail.dev@gmail.com>"]
+edition = "2018"
+name = "todo-rest-api"
+version = "0.1.0"
+
+[dependencies]
+diesel = {version = "1.4.5", features = ["postgres"]}
+dotenv = "0.15.0"
+rocket = "0.4.5"
+rocket_codegen = "0.4.5"
+rocket_contrib = "0.4.5"
+serde = "1.0.115"
+serde_derive = "1.0.115"
+serde_json = "1.0.57"
