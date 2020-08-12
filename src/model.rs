@@ -11,10 +11,11 @@ pub struct Task {
     pub completed: bool,
 }
 
-#[derive(Serialize, Insertable, Queryable, Deserialize, Clone, Debug)]
+#[derive(Serialize, Insertable, Queryable, Deserialize, AsChangeset)]
 pub struct Todo {
     pub title: String,
     pub body: Option<String>,
+    pub completed: Option<bool>,
 }
 
 impl From<Task> for Todo {
@@ -22,6 +23,7 @@ impl From<Task> for Todo {
         Todo {
             title: todo.title,
             body: todo.body,
+            completed: Some(todo.completed),
         }
     }
 }
@@ -34,10 +36,16 @@ impl Task {
     }
 
     pub fn get(id: i32, conn: &PgConnection) -> QueryResult<Task> {
-        todos::dsl::todos.find(id).get_result(conn)
+        todos::table.find(id).get_result(conn)
     }
 
     pub fn all(conn: &PgConnection) -> QueryResult<Vec<Task>> {
-        todos::dsl::todos.order(todos::id).load::<Task>(conn)
+        todos::table.order(todos::id).load::<Task>(conn)
+    }
+
+    pub fn update(id: i32, todo: Todo, conn: &PgConnection) -> QueryResult<Task> {
+        diesel::update(todos::table.find(id))
+            .set(&todo)
+            .get_result(conn)
     }
 }
