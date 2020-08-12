@@ -42,6 +42,13 @@ fn all(connection: db::Connection) -> Result<Json<Vec<Task>>, Status> {
     Task::all(&connection).map(Json).map_err(error_status)
 }
 
+#[delete("/todo/<id>")]
+fn delete(id: i32, connection: db::Connection) -> Result<Json<Task>, Status> {
+    Task::delete(id, &connection)
+        .map(Json)
+        .map_err(error_status)
+}
+
 fn error_status(error: Error) -> Status {
     match error {
         Error::NotFound => Status::NotFound,
@@ -52,6 +59,6 @@ fn error_status(error: Error) -> Status {
 fn main() {
     rocket::ignite()
         .manage(db::connect())
-        .mount("/api/v1/", routes![all, get, create, update])
+        .mount("/api/v1/", routes![all, get, create, delete, update])
         .launch();
 }

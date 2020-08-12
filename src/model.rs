@@ -48,4 +48,8 @@ impl Task {
             .set(&todo)
             .get_result(conn)
     }
+
+    pub fn delete(id: i32, conn: &PgConnection) -> QueryResult<Task> {
+        diesel::delete(todos::table.find(id)).get_result(conn)
+    }
 }
