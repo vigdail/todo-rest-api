@@ -1,4 +1,4 @@
-use diesel::{PgConnection, QueryResult, Queryable, RunQueryDsl};
+use diesel::{PgConnection, QueryDsl, QueryResult, Queryable, RunQueryDsl};
 
 use super::schema::todos;
 
@@ -33,7 +33,11 @@ impl Task {
             .get_result(conn)
     }
 
+    pub fn get(id: i32, conn: &PgConnection) -> QueryResult<Task> {
+        todos::dsl::todos.find(id).get_result(conn)
+    }
+
     pub fn all(conn: &PgConnection) -> QueryResult<Vec<Task>> {
-        todos::table.load::<Task>(conn)
+        todos::dsl::todos.order(todos::id).load::<Task>(conn)
     }
 }
