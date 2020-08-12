@@ -27,11 +27,10 @@ impl From<Task> for Todo {
 }
 
 impl Task {
-    pub fn create(todo: Todo, conn: &PgConnection) -> bool {
+    pub fn create(todo: Todo, conn: &PgConnection) -> QueryResult<Task> {
         diesel::insert_into(todos::table)
             .values(&todo)
-            .execute(conn)
-            .is_ok()
+            .get_result(conn)
     }
 
     pub fn all(conn: &PgConnection) -> QueryResult<Vec<Task>> {

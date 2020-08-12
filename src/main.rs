@@ -19,8 +19,10 @@ mod model;
 mod schema;
 
 #[post("/todo", data = "<todo>", format = "json")]
-fn create(todo: Json<Todo>, connection: db::Connection) -> Json<bool> {
-    Json(Task::create(todo.into_inner(), &connection))
+fn create(todo: Json<Todo>, connection: db::Connection) -> Result<Json<Task>, Status> {
+    Task::create(todo.into_inner(), &connection)
+        .map(Json)
+        .map_err(error_status)
 }
 
 #[get("/todos")]
