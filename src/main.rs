@@ -1,6 +1,8 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
+use diesel::result::Error;
 use model::{Task, Todo};
+use rocket::http::Status;
 use rocket_contrib::json::Json;
 
 #[macro_use]
@@ -21,9 +23,21 @@ fn create(todo: Json<Todo>, connection: db::Connection) -> Json<bool> {
     Json(Task::create(todo.into_inner(), &connection))
 }
 
+#[get("/todos")]
+fn all(connection: db::Connection) -> Result<Json<Vec<Task>>, Status> {
+    Task::all(&connection).map(Json).map_err(error_status)
+}
+
+fn error_status(error: Error) -> Status {
+    match error {
+        Error::NotFound => Status::NotFound,
+        _ => Status::InternalServerError,
+    }
+}
+
 fn main() {
     rocket::ignite()
         .manage(db::connect())
-        .mount("/api/v1/", routes![create])
+        .mount("/api/v1/", routes![all, create])
         .launch();
 }

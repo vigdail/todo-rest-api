@@ -1,33 +1,40 @@
-use diesel::{PgConnection, Queryable, RunQueryDsl};
+use diesel::{PgConnection, QueryResult, Queryable, RunQueryDsl};
 
 use super::schema::todos;
 
 #[table_name = "todos"]
 #[derive(Queryable, Insertable, Serialize, Clone, Debug)]
 pub struct Task {
-    pub id: Option<i32>,
+    pub id: i32,
     pub title: String,
     pub body: Option<String>,
     pub completed: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Insertable, Queryable, Deserialize, Clone, Debug)]
 pub struct Todo {
     pub title: String,
     pub body: Option<String>,
 }
 
-impl Task {
-    pub fn create(todo: Todo, conn: &PgConnection) -> bool {
-        let insert = Task {
-            id: None,
+impl From<Task> for Todo {
+    fn from(todo: Task) -> Self {
+        Todo {
             title: todo.title,
             body: todo.body,
-            completed: false,
-        };
+        }
+    }
+}
+
+impl Task {
+    pub fn create(todo: Todo, conn: &PgConnection) -> bool {
         diesel::insert_into(todos::table)
-            .values(&insert)
+            .values(&todo)
             .execute(conn)
             .is_ok()
+    }
+
+    pub fn all(conn: &PgConnection) -> QueryResult<Vec<Task>> {
+        todos::table.load::<Task>(conn)
     }
 }
