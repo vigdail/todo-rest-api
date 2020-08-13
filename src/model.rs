@@ -2,8 +2,7 @@ use diesel::{PgConnection, QueryDsl, QueryResult, Queryable, RunQueryDsl};
 
 use super::schema::todos;
 
-#[table_name = "todos"]
-#[derive(Queryable, Insertable, Serialize, Clone, Debug)]
+#[derive(Queryable, Serialize)]
 pub struct Task {
     pub id: i32,
     pub title: String,
